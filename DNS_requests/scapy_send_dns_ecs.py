@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This script sends a DNS query with EDNS Client Subnet as below.
+This script sends a DNS query with EDNS Client Subnet.
 """
 
 from scapy.all import *
