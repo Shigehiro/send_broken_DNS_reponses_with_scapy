@@ -29,4 +29,4 @@ packet = (
 )
           
 # Send the packet
-sr(packet, verbose=True)
+sr(packet, verbose=True, timeout=1)
