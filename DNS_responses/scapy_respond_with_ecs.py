@@ -1,5 +1,30 @@
 #!/usr/bin/env python3
 
+"""
+This script returns a DNS response with ECS.
+
+Please send queries with +subnet /8 as below.
+This scrip will return responses with /24
+
+# dig @192.168.116.30 www.example.com +subnet=30.0.0.0/8
+
+; <<>> DiG 9.11.36-RedHat-9.11.36-14.el8_10 <<>> @192.168.116.30 www.example.com +subnet=30.0.0.0/8
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 13153
+;; flags: qr aa; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; CLIENT-SUBNET: 30.0.0.0/8/24
+;; QUESTION SECTION:
+;www.example.com.               IN      A
+
+;; ANSWER SECTION:
+www.example.com.        3600    IN      A       183.0.0.1
+"""
+
 from scapy.all import *
 
 # Set the interface to listen and respond on
@@ -27,8 +52,8 @@ def dns_reply(packet):
             pass
 
 
-    if ecs_flag:
-        print(address)
+    #if ecs_flag:
+    #    print(address)
 
     # Construct the DNS packet
     # Construct the Ethernet header by looking at the sniffed packet
@@ -67,7 +92,7 @@ def dns_reply(packet):
             an=DNSRR(
                 rrname=packet[DNS].qd.qname,
                 type='A',
-                ttl=300,
+                ttl=86400,
                 rdata='11.0.0.1')
             )
 
@@ -76,6 +101,9 @@ def dns_reply(packet):
     
     # if ECS exists in the request
     elif ecs_flag:
+
+        return_address = str('.'.join(address.split('.')[0:-1]) + '.0').replace("'", '')
+
         dns = DNS(
             id=packet[DNS].id,
             qd=packet[DNS].qd,
@@ -90,10 +118,10 @@ def dns_reply(packet):
             an=DNSRR(
                 rrname=packet[DNS].qd.qname,
                 type='A',
-                ttl=300,
-                rdata='12.0.0.1'),
+                ttl=3600,
+                rdata=f'{random.randint(11,191)}.0.0.1'),
             ar=DNSRR(rrname='.', type='OPT', rclass=1232,
-                    rdata=EDNS0ClientSubnet(optcode='edns-client-subnet', family=1, scope_plen=24, address='20.0.0.0'))
+                    rdata=EDNS0ClientSubnet(optcode='edns-client-subnet', family=1, scope_plen=24, address=return_address))
             )
 
         response_packet = eth / ip / udp / dns
