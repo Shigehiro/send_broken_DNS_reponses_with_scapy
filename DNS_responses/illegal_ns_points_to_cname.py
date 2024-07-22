@@ -66,5 +66,5 @@ def dns_reply(packet):
     sendp(response_packet, iface=net_interface)
 
 # Sniff for a DNS query matching the 'packet_filter' and send a specially crafted reply
-sniff(filter='udp and dst port 53', iface='eth0', store=0, prn=dns_reply)
+sniff(filter='udp and dst port 53', iface=net_interface, store=0, prn=dns_reply)
 
