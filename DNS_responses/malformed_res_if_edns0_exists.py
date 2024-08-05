@@ -5,7 +5,6 @@ This script will return a wrong response, such as a malformed packet, servfail, 
 """
 
 from scapy.all import *
-import time
 
 # Set the interface to listen and respond on
 net_interface = "eth0"
