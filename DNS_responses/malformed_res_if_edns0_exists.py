@@ -31,16 +31,36 @@ def dns_reply(packet):
         )
 
     # Here is an edns0 existence flag.
+    exist_edns = False
     try:
         # EDNS0 version is 0
         if packet[DNS].ar.version == 0:
             exist_edns = True
     except:
-        exist_edns = False
         pass
+
+    # build the normal dns response
+    dns = DNS(
+        id=packet[DNS].id,
+        qd=packet[DNS].qd,
+        aa=1,
+        rd=0,
+        qr=1,
+        rcode=0,
+        qdcount=1,
+        ancount=1,
+        nscount=0,
+        arcount=0,
+        an=DNSRR(
+            rrname=packet[DNS].qd.qname,
+            type='A',
+            ttl=300,
+            rdata='10.0.0.1')
+        )
 
     # If edns0 exists, return a malformed packet
     if exist_edns:
+
         print("Found EDNS0 in the request")
 
         # servfail
@@ -71,32 +91,13 @@ def dns_reply(packet):
             arcount=0,
             )
 
-        # normal response
-        dns = DNS(
-            id=packet[DNS].id,
-            qd=packet[DNS].qd,
-            aa=1,
-            rd=0,
-            qr=1,
-            rcode=0,
-            qdcount=1,
-            ancount=1,
-            nscount=0,
-            arcount=0,
-            an=DNSRR(
-                rrname=packet[DNS].qd.qname,
-                type='A',
-                ttl=300,
-                rdata='10.0.0.1')
-            )
-
         # malformed packet
         payload = 'a' * 100
 
-        response_packet = eth / ip / udp / payload
-        #response_packet = eth / ip / udp / dns
-        #response_packet = eth / ip / udp / servfail_dns
+        #response_packet = eth / ip / udp / payload
+        response_packet = eth / ip / udp / servfail_dns
         #response_packet = eth / ip / udp / formerr_dns
+        #response_packet = eth / ip / udp / dns
 
         # Send the DNS response
         sendp(response_packet, iface=net_interface, verbose=0)
@@ -127,5 +128,5 @@ def dns_reply(packet):
         # Send the DNS response
         sendp(response_packet, iface=net_interface, verbose=0)
 
-# Sniff for a DNS query matching the 'packet_filter' and send a specially crafted reply
+# sniff packets.
 sniff(filter='ip and udp and dst port 53', iface=net_interface, store=0, prn=dns_reply)
