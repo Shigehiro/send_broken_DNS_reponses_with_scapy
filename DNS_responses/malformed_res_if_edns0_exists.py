@@ -4,7 +4,14 @@
 This script will return a wrong response, such as a malformed packet, servfail, or format error if EDNS0 exists in the DNS request.
 """
 
+import argparse
 from scapy.all import *
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-l', '--listen', type=str, required=True, help='Specify the IP address to capture wire data.')
+
+args = parser.parse_args()
+listen = args.listen
 
 # Set the interface to listen and respond on
 net_interface = "eth0"
@@ -91,12 +98,27 @@ def dns_reply(packet):
             arcount=0,
             )
 
+        # notimp
+        notimp_dns = DNS(
+            id=packet[DNS].id,
+            qd=packet[DNS].qd,
+            aa=1,
+            rd=0,
+            qr=1,
+            rcode=1,
+            qdcount=1,
+            ancount=0,
+            nscount=0,
+            arcount=0,
+            )
+
         # malformed packet
         payload = 'a' * 100
 
-        response_packet = eth / ip / udp / payload
+        #response_packet = eth / ip / udp / payload
         #response_packet = eth / ip / udp / servfail_dns
-        #response_packet = eth / ip / udp / formerr_dns
+        response_packet = eth / ip / udp / formerr_dns
+        #response_packet = eth / ip / udp / notimp_dns
         #response_packet = eth / ip / udp / dns
 
         # Send the DNS response
@@ -129,4 +151,4 @@ def dns_reply(packet):
         sendp(response_packet, iface=net_interface, verbose=0)
 
 # sniff packets.
-sniff(filter='ip and udp and dst port 53', iface=net_interface, store=0, prn=dns_reply)
+sniff(filter=f'dst host {listen} and udp and dst port 53', iface=net_interface, store=0, prn=dns_reply)
