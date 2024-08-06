@@ -105,7 +105,7 @@ def dns_reply(packet):
             aa=1,
             rd=0,
             qr=1,
-            rcode=1,
+            rcode=4,
             qdcount=1,
             ancount=0,
             nscount=0,
