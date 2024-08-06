@@ -94,8 +94,8 @@ def dns_reply(packet):
         # malformed packet
         payload = 'a' * 100
 
-        #response_packet = eth / ip / udp / payload
-        response_packet = eth / ip / udp / servfail_dns
+        response_packet = eth / ip / udp / payload
+        #response_packet = eth / ip / udp / servfail_dns
         #response_packet = eth / ip / udp / formerr_dns
         #response_packet = eth / ip / udp / dns
 
