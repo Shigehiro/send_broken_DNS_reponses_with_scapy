@@ -8,7 +8,7 @@ import argparse
 from scapy.all import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', '--listen', type=str, required=True, help='Specify the IP address to capture wire data.')
+parser.add_argument('-l', '--listen', type=str, required=True, help='Specify the IPv4 address to capture wire data.')
 
 args = parser.parse_args()
 listen = args.listen
