@@ -166,7 +166,7 @@ def dns_reply(packet):
             print("RCV: FIN ACK, Send RST")
             send_reset(packet)
         else:
-            raise Exception("Oops")
+            print("Oops")
 
     # Handle UDP packets
     if packet.haslayer(IP) and packet.haslayer(UDP):
