@@ -2,7 +2,7 @@
 
 """
 This script always forces TCP by returning the response with a truncate bit turned on.
-You can add a delay before sending UDP responses, SYN, ACK, and TCP responses.
+You can add a delay before sending UDP responses, SYN/ACK, and TCP responses.
 
 Reference
 https://gist.githubusercontent.com/tintinweb/8523a9a43a2fb61a6770/raw/a62359896acb6e5071201c66b122d5b960d1c503/scapy_tcp_handshake.py
