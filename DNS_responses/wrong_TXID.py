@@ -15,9 +15,11 @@ def dns_reply(packet):
 
     correct_txid = packet[DNS].id
     txid_list = list()
-    for i in range(5):
+    for i in range(3):
         txid_list.append(random.randint(0,65536))
     txid_list.append(correct_txid)
+    for i in range(3):
+        txid_list.append(random.randint(0,65536))
 
     for txid in txid_list:
         # Construct the DNS packet
