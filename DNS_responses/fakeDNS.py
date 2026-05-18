@@ -6,6 +6,17 @@ server = NameServer("example")
 
 base_domain = "example.com"
 
+"""
+@server.rule("*.{base_domain}", ["A"])
+def example_a_records(query: Query):
+    return A(query.name, "1.2.3.4")
+
+@server.rule("*.{base_domain}", ["AAAA"])
+def res(query: Query):
+    response = Response(error_code=dnslib.RCODE.REFUSED)
+    return response
+"""
+
 @server.rule("tc.sub.{base_domain}", ["A", "AAAA"])
 def res(query: Query):
     response = Response()
