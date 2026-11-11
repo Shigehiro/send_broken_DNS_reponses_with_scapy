@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This script sends a DNS request which contains a DNS response.
+Send malformed DNS queries
 """
 
 import argparse
